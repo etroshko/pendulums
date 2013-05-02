@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const double eps = 1e-14;
+const double eps = 1e-20;
 
 class Pendulum
 {
@@ -85,25 +85,26 @@ double Mathematical_pendulum::get_oscillation_period()const
 class Spring_pendulum: public Pendulum
 {
 public:
-    Spring_pendulum(double weight, const string &name);
+    Spring_pendulum(double weight, double spring, const string &name);
     double get_oscillation_period()const;
     double get_cyclic_frequency()const;
 private:
     double class_weight;
+    double class_spring;
 };
 
-Spring_pendulum::Spring_pendulum(double weight, const string &name):
-    Pendulum(string("Spring pendulum ")+name), class_weight(weight)
+Spring_pendulum::Spring_pendulum(double weight,double spring, const string &name):
+    Pendulum(string("Spring pendulum ")+name), class_weight(weight), class_spring(spring)
 {}
 
 double Spring_pendulum::get_cyclic_frequency()const
 {
-    return sqrt(9.8/class_weight);
+    return sqrt(class_spring/class_weight);
 }
 
 double Spring_pendulum::get_oscillation_period()const
 {
-    return 2*M_PI*sqrt(class_weight/9.8);
+    return 2*M_PI*sqrt(class_weight/class_spring);
 }
 
 //===================================================================================//
@@ -151,7 +152,7 @@ void input(Pendulum **array,int count)
             cout<<"1 - Electric oscillating circuit\n2 - Mathematical pendulum\n3 - Spring pendulum\n4 - Compound pendulum\n";
             cin>>n;
             string name;
-            double inductance, capacitance, length, weight, inertia_moment;
+            double inductance, capacitance, length, weight, spring, inertia_moment;
             switch(n)
             {
             case 1:
@@ -175,7 +176,9 @@ void input(Pendulum **array,int count)
                 cin>>name;
                 cout<<"Enter the weight of the spring pendulum (kilogram):\n";
                 cin>>weight;
-                array[i] = new Spring_pendulum(weight,name);
+                cout<<"Enter the spring stiffness of the spring pendulum (newton/metre):\n";
+                cin>>spring;
+                array[i] = new Spring_pendulum(weight, spring, name);
                 break;
             case 4:
                 cout<<"Enter the name of the compound pendulum:\n";
@@ -201,11 +204,12 @@ void output(Pendulum **array, int count)
 {
     for(int i = 0; i < count; ++i)
     {
+        cout<<endl;
         cout<<"The "<<i+1<<" is the "<<array[i]->get_name()<<".\n";
-        cout<<"It has cyclic frequency "<<array[i]->get_cyclic_frequency()<<".\n";
-        cout<<"It has square oscillation period "<<array[i]->get_oscillation_period()<<".\n";
+        cout<<"It has cyclic frequency "<<array[i]->get_cyclic_frequency()<<" radian/seconds.\n";
+        cout<<"It has oscillation period "<<array[i]->get_oscillation_period()<<" seconds.\n";
         cout<<"The (oscillation period)/(cyclic frequency) ratio is "<<ratio(*array[i])<<".\n";
-        cout<<endl<<endl;
+        cout<<endl;
     }
 }
 
